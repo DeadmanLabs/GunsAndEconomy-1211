@@ -168,7 +168,7 @@ public class GCAA {
                 //ServerLifecycleHooks.getCurrentServer() != null || !ModList.get().isLoaded("forge");
     }
 
-    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class RegistryEvents {
 
         @OnlyIn(Dist.CLIENT)
