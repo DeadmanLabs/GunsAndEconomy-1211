@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gcaa:block/ammunition_processor",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "gcaa:block/ammunition_processor",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "gcaa:block/ammunition_processor",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "gcaa:block/ammunition_processor",
+      "y": 90
+    }
+  }
+}

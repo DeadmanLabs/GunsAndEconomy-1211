@@ -1,0 +1,108 @@
+package sheridan.gcaa.client.render.fx.muzzleSmoke;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.InteractionHand;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import org.joml.Matrix4f;
+import sheridan.gcaa.Clients;
+import sheridan.gcaa.utils.RenderAndMathUtils;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+@EventBusSubscriber(Dist.CLIENT)
+public class MuzzleSmokeRenderer {
+    private static final ByteBufferBuilder DELAYED_TASK_BUFFER = new ByteBufferBuilder(1024);
+    private static final Deque<MuzzleSmokeTask> tasks = new ArrayDeque<>();
+    private static Matrix4f tempProjectionMatrix = null;
+    public static final int MAX_DELAYED_TASKS = 5;
+    public static final MuzzleSmokeRenderer INSTANCE = new MuzzleSmokeRenderer();
+    private boolean isTaskQueueOpen = false;
+    private boolean renderImmediate = true;
+    public static boolean depthMask = true;
+
+    /**
+     * Only call this method on render thread!!!
+     * */
+    public void openTaskQueue() {
+        this.isTaskQueueOpen = true;
+    }
+
+    /**
+     * Only call this method on render thread!!!
+     * */
+    public void renderOrPushEffect(MuzzleSmoke effect, PoseStack poseStack, long lastShoot, int light)  {
+        if (effect == null) {
+            return;
+        }
+        renderImmediate = Clients.currentStage == RenderLevelStageEvent.Stage.AFTER_LEVEL;
+        if (isTaskQueueOpen) {
+            if (tasks.size() > MAX_DELAYED_TASKS) {
+                tasks.pollLast();
+            }
+            if (tasks.size() < MAX_DELAYED_TASKS) {
+                PoseStack poseStack1 = RenderAndMathUtils.copyPoseStack(poseStack);
+                if (renderImmediate) {
+                    poseStack1.translate(0, 0, -0.005f);
+                } else {
+                    tempProjectionMatrix = new Matrix4f(RenderSystem.getProjectionMatrix());
+                }
+                tasks.offerFirst(new MuzzleSmokeTask(poseStack1, lastShoot, effect, light));
+            }
+            isTaskQueueOpen = false;
+        }
+//        if (renderImmediate) {
+//            tasks.removeIf((task) -> task.handleRender(bufferSource));
+//        }
+    }
+
+    public void clearEffects() {
+        tasks.clear();
+    }
+
+    public boolean hasTask() {
+        return !tasks.isEmpty();
+    }
+
+    @SubscribeEvent(priority = EventPriority.NORMAL)
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        if (!INSTANCE.renderImmediate && !tasks.isEmpty() &&
+                event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            if (tempProjectionMatrix != null) {
+                RenderSystem.backupProjectionMatrix();
+                RenderSystem.setProjectionMatrix(tempProjectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN);
+            }
+            depthMask = true;
+            MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(DELAYED_TASK_BUFFER);
+            tasks.removeIf((task) -> task.handleRender(bufferSource));
+            bufferSource.endBatch();
+            if (tempProjectionMatrix != null) {
+                RenderSystem.restoreProjectionMatrix();
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRenderHandLast(RenderHandEvent event) {
+        if (INSTANCE.renderImmediate && event.getHand() == InteractionHand.OFF_HAND) {
+            depthMask = false;
+            MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(DELAYED_TASK_BUFFER);
+            tasks.removeIf((task) -> task.handleRender(bufferSource));
+            bufferSource.endBatch();
+            depthMask = true;
+        }
+    }
+}

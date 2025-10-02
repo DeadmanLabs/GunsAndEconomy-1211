@@ -1,0 +1,805 @@
+package sheridan.gcaa.items.gun;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import sheridan.gcaa.items.ModDataComponents;
+import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import sheridan.gcaa.Clients;
+import sheridan.gcaa.Commons;
+import sheridan.gcaa.GCAA;
+import sheridan.gcaa.attachmentSys.common.AttachmentsRegister;
+import sheridan.gcaa.client.*;
+import sheridan.gcaa.client.animation.recoilAnimation.InertialRecoilData;
+import sheridan.gcaa.client.animation.AnimationHandler;
+import sheridan.gcaa.capability.PlayerStatusProvider;
+import sheridan.gcaa.client.animation.recoilAnimation.InertialRecoilHandler;
+import sheridan.gcaa.client.animation.recoilAnimation.RecoilCameraHandler;
+import sheridan.gcaa.client.config.ClientConfig;
+import sheridan.gcaa.client.model.registry.GunModelRegister;
+import sheridan.gcaa.client.render.DisplayData;
+import sheridan.gcaa.client.render.fx.bulletShell.BulletShellRenderer;
+import sheridan.gcaa.common.config.CommonConfig;
+import sheridan.gcaa.items.NoRepairNoEnchantmentItem;
+import sheridan.gcaa.items.ammunition.Ammunition;
+import sheridan.gcaa.items.ammunition.AmmunitionHandler;
+import sheridan.gcaa.items.ammunition.IAmmunition;
+import sheridan.gcaa.items.ammunition.IAmmunitionMod;
+import sheridan.gcaa.items.attachments.IArmReplace;
+import sheridan.gcaa.items.attachments.Scope;
+import sheridan.gcaa.items.gun.calibers.Caliber;
+import net.neoforged.neoforge.network.PacketDistributor;
+import sheridan.gcaa.network.packets.c2s.GunFirePacket;
+import sheridan.gcaa.sounds.ModSounds;
+import sheridan.gcaa.utils.FontUtils;
+import sheridan.gcaa.utils.RenderAndMathUtils;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+
+public class Gun extends NoRepairNoEnchantmentItem implements IGun {
+    public static final String MUZZLE_STATE_NORMAL = "normal";
+    public static final String MUZZLE_STATE_SUPPRESSOR = "suppressor";
+    public static final String MUZZLE_STATE_COMPENSATOR = "compensator";
+    protected static final List<Gun> ALL_INSTANCES = new ArrayList<>();
+    private final GunProperties gunProperties;
+    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
+    public String id = GCAA.MODID;
+
+    public Gun(GunProperties gunProperties) {
+        super(new Properties().stacksTo(1));
+        this.gunProperties = gunProperties;
+        defaultModifiers = ArrayListMultimap.create();
+        // Note: AttributeModifier is final in 1.21.1, will be recreated in getAttributeModifiers
+        ALL_INSTANCES.add(this);
+    }
+
+    public Gun resetId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public static List<Gun> getAllInstances() {
+        return ALL_INSTANCES;
+    }
+
+    @Override
+    public GunProperties getGunProperties() {
+        return gunProperties;
+    }
+
+    @Override
+    public Gun getGun() {
+        return this;
+    }
+
+    @Override
+    public int getAmmoLeft(ItemStack stack) {
+        return checkAndGet(stack).getInt("ammo_left");
+    }
+
+    @Override
+    public void setAmmoLeft(ItemStack stack, int ammoLeft) {
+        CompoundTag nbt = checkAndGet(stack);
+        nbt.putInt("ammo_left", ammoLeft);
+        stack.set(ModDataComponents.GUN_DATA, nbt);
+    }
+
+    @Override
+    public int getMagSize(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("mag_size") ? properties.getInt("mag_size") : -1;
+    }
+
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void clientShoot(ItemStack stack, Player player, IGunFireMode fireMode) {
+        Clients.MAIN_HAND_STATUS.lastShoot = System.currentTimeMillis();
+        PlayerStatusProvider.setLastShoot(player, System.currentTimeMillis());
+        PlayerStatusProvider.updateLocalTimeOffset(player);
+        if (Clients.DO_SEND_FIRE_PACKET) {
+            PacketDistributor.sendToServer(new GunFirePacket(Clients.getSpread(this, player, stack)));
+        }
+        DisplayData data = GunModelRegister.getDisplayData(this);
+        InertialRecoilData inertialRecoilData = data == null ? null : data.getInertialRecoilData();
+        boolean hasInertialRecoil = inertialRecoilData != null;
+        IArmReplace leftArmReplace = Clients.MAIN_HAND_STATUS.getLeftArmReplaceAttachment();
+        IArmReplace rightArmReplace = Clients.MAIN_HAND_STATUS.getRightArmReplaceAttachment();
+        CompoundTag tag = getPropertiesTag(stack);
+        float directionX = InertialRecoilHandler.randomIndexX(hasInertialRecoil ? inertialRecoilData.randomXChangeRate : 0.5f);
+        Clients.MAIN_HAND_STATUS.lastRecoilDirection = directionX;
+        float pControl = gunProperties.getPropertyRate(GunProperties.RECOIL_PITCH_CONTROL, tag, 0);
+        float yControl = gunProperties.getPropertyRate(GunProperties.RECOIL_YAW_CONTROL, tag, 0);
+        float pControlIncRate = 0;
+        float yControlIncRate = 0;
+        if (leftArmReplace != null) {
+            pControlIncRate += leftArmReplace.getPitchRecoilControlIncRate();
+            yControlIncRate += leftArmReplace.getYawRecoilControlIncRate();
+        }
+        if (rightArmReplace != null) {
+            pControlIncRate += rightArmReplace.getPitchRecoilControlIncRate();
+            yControlIncRate += rightArmReplace.getYawRecoilControlIncRate();
+        }
+        pControl *= Mth.clamp(1 + pControlIncRate, 0, 99999);
+        yControl *= Mth.clamp(1 + yControlIncRate, 0, 99999);
+
+        if (hasInertialRecoil) {
+            float directionY = InertialRecoilHandler.randomIndexY(inertialRecoilData.randomYChangeRate);
+            float pRate = gunProperties.getPropertyRate(GunProperties.RECOIL_PITCH, tag, 1);
+            float yRate = gunProperties.getPropertyRate(GunProperties.RECOIL_YAW, tag, 1);
+            AnimationHandler.INSTANCE.pushRecoil(inertialRecoilData, directionX, directionY,
+                    Mth.clamp((pRate - Math.max(0, pControl - 1) * 0.3f), 0.5f, 1f),
+                    Mth.clamp((yRate - Math.max(0, yControl - 1) * 0.3f), 0.5f, 1f));
+
+            //SpringRecoilHandler.INSTANCE.onShoot(this, stack, pControl, yControl, pRate, yRate, directionX, directionY);
+        }
+
+        RecoilCameraHandler.INSTANCE.onShoot(this, stack, directionX, player,
+                Math.max(1, 1 + pControlIncRate),
+                Math.max(1, 1 + yControlIncRate));
+        handleFireSoundClient(stack, player);
+        float spread = getShootSpread(stack);
+        if (player.isCrouching()) {
+            spread *= 0.8f;
+        }
+        if (Clients.MAIN_HAND_STATUS.ads && Clients.MAIN_HAND_STATUS.adsProgress > 0.7f) {
+            spread *= 0.7f;
+        }
+        Clients.MAIN_HAND_STATUS.spread += spread;
+        boolean notUseAmmo = player.isCreative() && !CommonConfig.creativeModeUseAmmo.get();
+        if (!notUseAmmo) {
+            setAmmoLeft(stack, getAmmoLeft(stack) > 0 ? getAmmoLeft(stack) - 1 : 0);
+        }
+        List<IAmmunitionMod> mods = Clients.MAIN_HAND_STATUS.ammunitionMods;
+        if (!mods.isEmpty()) {
+            for (IAmmunitionMod mod : mods) {
+                mod.onShootInOwnClient(this, player);
+            }
+        }
+        if (ClientConfig.enableMuzzleFlashLighting.get()) {
+            MuzzleFlashLightHandler.onClientShoot(stack, this, player);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    protected void handleFireSoundClient(ItemStack stack, Player player) {
+        String muzzleState = getMuzzleFlash(stack);
+        if (MUZZLE_STATE_SUPPRESSOR.equals(muzzleState)) {
+            if (gunProperties.suppressedSound != null) {
+                ModSounds.sound(1, 1f + ((float) Math.random() * 0.1f), player, gunProperties.suppressedSound.get());
+            } else {
+                if (gunProperties.fireSound != null) {
+                    ModSounds.sound(0.5f, 1.6f + ((float) Math.random() * 0.1f), player, gunProperties.fireSound.get());
+                }
+            }
+        } else {
+            if (gunProperties.fireSound != null) {
+                ModSounds.sound(1, 1f + ((float) Math.random() * 0.1f), player, gunProperties.fireSound.get());
+            }
+        }
+    }
+
+    protected void handleFireSoundServer(ItemStack stack, Player player) {
+        String muzzleState = getMuzzleFlash(stack);
+        float vol = getFireSoundVol(stack);
+        float pitch = 1f + ((float) Math.random() * 0.1f);
+        if (MUZZLE_STATE_SUPPRESSOR.equals(muzzleState)) {
+            if (gunProperties.suppressedSound != null) {
+                ModSounds.boardCastSound(gunProperties.suppressedSound.get(), vol, 1, pitch, (ServerPlayer) player);
+            } else {
+                ModSounds.boardCastSound(gunProperties.fireSound.get(), vol, 0.5f, 1.6f + ((float) Math.random() * 0.1f), (ServerPlayer) player);
+            }
+        } else {
+            ModSounds.boardCastSound(gunProperties.fireSound.get(), vol, 1f, pitch, (ServerPlayer) player);
+        }
+    }
+
+    @Override
+    public void shoot(ItemStack stack, Player player, IGunFireMode fireMode, float spread) {
+        int ammoLeft = getAmmoLeft(stack);
+        if (ammoLeft > 0) {
+            Caliber caliber = gunProperties.caliber;
+            boolean notUseAmmo = player.isCreative() && !CommonConfig.creativeModeUseAmmo.get();
+            if (!notUseAmmo) {
+                setAmmoLeft(stack, ammoLeft - 1);
+            }
+            if (!player.level().isClientSide) {
+                caliber.fireBullet(null, null, this, player, stack, spread);
+                try {
+                    handleFireSoundServer(stack, player);
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    @Override
+    public IGunFireMode getFireMode(ItemStack stack) {
+        int index = checkAndGet(stack).getInt("fire_mode_index");
+        List<IGunFireMode> fireModes = gunProperties.fireModes;
+        return fireModes.get(index % fireModes.size());
+    }
+
+    @Override
+    public Caliber getCaliber() {
+        return gunProperties.caliber;
+    }
+
+    @Override
+    public CompoundTag getPropertiesTag(ItemStack stack) {
+        return checkAndGet(stack).contains("properties") ? checkAndGet(stack).getCompound("properties") : new CompoundTag();
+    }
+
+    @Override
+    public ListTag getAttachmentsListTag(ItemStack stack) {
+        return checkAndGet(stack).contains("attachments") ? checkAndGet(stack).getList("attachments", Tag.TAG_COMPOUND) : new ListTag();
+    }
+
+    @Override
+    public void setAttachmentsListTag(ItemStack stack, ListTag list) {
+        CompoundTag nbt = checkAndGet(stack);
+        nbt.put("attachments", list);
+        stack.set(ModDataComponents.GUN_DATA, nbt);
+        newAttachmentsModifiedID(stack);
+    }
+
+    @Override
+    public void setPropertiesTag(ItemStack stack, CompoundTag tag) {
+        CompoundTag nbt = checkAndGet(stack);
+        nbt.put("properties", tag);
+        stack.set(ModDataComponents.GUN_DATA, nbt);
+    }
+
+    @Override
+    public void switchFireMode(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        int index = tag.getInt("fire_mode_index") % gunProperties.fireModes.size();
+        IGunFireMode oldMode = gunProperties.fireModes.get(index);
+        oldMode.onSwitchOff(this, stack);
+        index = (index + 1) % gunProperties.fireModes.size();
+        tag.putInt("fire_mode_index", index);
+        stack.set(ModDataComponents.GUN_DATA, tag);
+        IGunFireMode newMode = gunProperties.fireModes.get(index);
+        newMode.onSwitchOn(this, stack);
+    }
+
+    @Override
+    public int getFireDelay(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("fire_delay") ? properties.getInt("fire_delay") : 0;
+    }
+
+    @Override
+    public String getMuzzleFlash(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("muzzle_flash") ? properties.getString("muzzle_flash") : "normal";
+    }
+
+    @Override
+    public boolean isSniper() {
+        return false;
+    }
+
+    @Override
+    public boolean isPistol() {
+        return false;
+    }
+
+    @Override
+    public float getRecoilPitch(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("recoil_pitch") ?
+                Math.max(0, properties.getFloat("recoil_pitch") * gunProperties.recoilPitch) : 0;
+    }
+
+    @Override
+    public float getRecoilYaw(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("recoil_yaw") ?
+                Math.max(0, properties.getFloat("recoil_yaw") * gunProperties.recoilYaw) : 0;
+    }
+
+    @Override
+    public float getRecoilPitchControl(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("recoil_pitch_control") ?
+                Math.max(0, properties.getFloat("recoil_pitch_control") * gunProperties.recoilPitchControl) : 0;
+    }
+
+    @Override
+    public float getRecoilYawControl(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("recoil_yaw_control") ?
+                Math.max(0, properties.getFloat("recoil_yaw_control") * gunProperties.recoilYawControl) : 0;
+    }
+
+    @Override
+    public float getWalkingSpreadFactor(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("walking_spread_factor") ?
+                Math.max(1, properties.getFloat("walking_spread_factor") * gunProperties.walkingSpreadFactor) : 1.3f;
+    }
+
+    @Override
+    public float getSprintingSpreadFactor(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("sprinting_spread_factor") ?
+                Math.max(1, properties.getFloat("sprinting_spread_factor") * gunProperties.sprintingSpreadFactor) : 1.6f;
+    }
+
+    @Override
+    public float getShootSpread(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("shoot_spread") ?
+                Math.max(0, properties.getFloat("shoot_spread") * gunProperties.shootSpread) : 0;
+    }
+
+    @Override
+    public float getSpreadRecover(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("spread_recover") ?
+                Math.max(0, properties.getFloat("spread_recover") * gunProperties.spreadRecover) : 0.1f;
+    }
+
+    @Override
+    public float getWeight(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("weight") ? Mth.clamp(properties.getFloat("weight"), GunProperties.MIN_WEIGHT, GunProperties.MAX_WEIGHT) : 16;
+    }
+
+    @Override
+    public float getAgility(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return properties.contains("agility") ? Mth.clamp(properties.getFloat("agility"), 0.5f, 2.5f)
+                * gunProperties.agility : gunProperties.agility;
+    }
+
+    @Override
+    public float getAdsSpeed(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        float rawSpeed = properties.contains("ads_speed") ?
+                Math.max(0, properties.getFloat("ads_speed") * gunProperties.adsSpeed) : 0;
+        float weightDist = getWeight(stack) - gunProperties.weight;
+        rawSpeed = Mth.clamp(rawSpeed - weightDist * 0.1f, rawSpeed * 0.4f, rawSpeed * 1.4f);
+        return rawSpeed;
+    }
+
+    @Override
+    public float[] getSpread(ItemStack stack) {
+        CompoundTag properties = getPropertiesTag(stack);
+        float minSpread = properties.contains("min_spread") ? Math.max(0, properties.getFloat("min_spread") * gunProperties.minSpread) : 0;
+        float maxSpread = properties.contains("max_spread") ? Math.max(0, properties.getFloat("max_spread") * gunProperties.maxSpread) : 0;
+        return new float[] {minSpread, maxSpread};
+    }
+
+    @Override
+    public float getFireSoundVol(ItemStack stack) {
+        return getPropertiesTag(stack).contains("fire_sound_vol") ?
+                Math.max(0, getPropertiesTag(stack).getFloat("fire_sound_vol") * gunProperties.fireSoundVol) : gunProperties.fireSoundVol;
+    }
+
+    @Override
+    public boolean clientReload(ItemStack stack, Player player) {
+        boolean allow = getAmmoLeft(stack) < getMagSize(stack);
+        if (allow) {
+            IAmmunition ammunition = this.gunProperties.caliber.ammunition;
+            if (ammunition == null) {
+                PlayerStatusProvider.setReloading(player, true);
+            } else {
+                if (AmmunitionHandler.hasAmmunition(this, stack, ammunition, player)) {
+                    PlayerStatusProvider.setReloading(player, true);
+                    return true;
+                } else {
+                    String ammunitionName = getFullAmmunitionUsedName(stack);
+                    String message = Component.translatable("tooltip.screen_info.no_ammo").getString().replace("@ammo", "");
+                    Minecraft.getInstance().gui.setOverlayMessage(
+                            Component.literal(message)
+                                    .append(Component.literal(ammunitionName)
+                                            .withStyle(Style.EMPTY
+                                                    .withColor(new Color(0xe84015).getRGB())
+                                                    .withItalic(true)
+                                                    .withBold(true)))
+                            , false);
+                    return false;
+                }
+            }
+        }
+        return allow;
+    }
+
+    @Override
+    public void reload(ItemStack stack, Player player) {
+        AmmunitionHandler.reloadFor(player, stack, this, getMagSize(stack));
+    }
+
+    @Override
+    public int getReloadLength(ItemStack stack, boolean fullReload) {
+        CompoundTag properties = getPropertiesTag(stack);
+        return fullReload ? properties.getInt("full_reload_length") : properties.getInt("reload_length");
+    }
+
+    @Override
+    public boolean isNotUsingSelectedAmmo(ItemStack itemStack) {
+        CompoundTag ammunitionData = getAmmunitionData(itemStack);
+        if (!ammunitionData.contains("using")) {
+            return false;
+        }
+        String usingID = ammunitionData.getCompound("using").getCompound("mods").getString("modsUUID");
+        String selectedID = ammunitionData.getCompound("selected").getCompound("mods").getString("modsUUID");
+        return !Objects.equals(usingID, selectedID);
+    }
+
+    public boolean shouldUseFullReload(ItemStack itemStack) {
+        return getAmmoLeft(itemStack) == 0 || isNotUsingSelectedAmmo(itemStack);
+    }
+
+    @Override
+    public IReloadTask getReloadingTask(ItemStack stack, Player player) {
+        return new ReloadTask(stack, this);
+    }
+
+    @Override
+    public IReloadTask getUnloadingTask(ItemStack stack, Player player) {
+        return new UnloadTask(this, stack, UnloadTask.RIFLE);
+    }
+
+
+    @Override
+    public long getDate(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        return tag.getLong("date");
+    }
+
+    @Override
+    public void updateDate(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        tag.putLong("date", Commons.SERVER_START_TIME);
+        stack.set(ModDataComponents.GUN_DATA, tag);
+    }
+
+    @Override
+    public String getAttachmentsModifiedID(ItemStack stack) {
+        return checkAndGet(stack).getString("attachments_modified_uuid");
+    }
+
+    @Override
+    public String getEffectiveSightID(ItemStack stack) {
+        return checkAndGet(stack).getString("effective_sight_uuid");
+    }
+
+    @Override
+    public void setEffectiveSightID(ItemStack stack, String uuid) {
+        CompoundTag nbt = checkAndGet(stack);
+        nbt.putString("effective_sight_uuid", uuid);
+        stack.set(ModDataComponents.GUN_DATA, nbt);
+    }
+
+    @Override
+    public void newAttachmentsModifiedID(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        tag.putString("attachments_modified_uuid", UUID.randomUUID().toString());
+        stack.set(ModDataComponents.GUN_DATA, tag);
+    }
+
+    @Override
+    public String getSelectedAmmunitionTypeID(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        if (tag.contains("selected_ammunition_type_uuid")) {
+            return tag.getString("selected_ammunition_type_uuid");
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public void bindAmmunition(ItemStack gunStack, ItemStack ammunitionStack, IAmmunition ammunition) {
+        String typeUUID = ammunition.getModsUUID(ammunitionStack);
+        CompoundTag gunTag = checkAndGet(gunStack);
+        gunTag.putString("selected_ammunition_type_uuid", typeUUID);
+        if (!gunTag.contains("ammunition_data")) {
+            CompoundTag ammunitionData = new CompoundTag();
+            gunTag.put("ammunition_data", ammunitionData);
+        }
+        CompoundTag ammunitionData = gunTag.getCompound("ammunition_data");
+        CompoundTag selected = new CompoundTag();
+        selected.put("mods", ammunition.getModsTag(ammunitionStack));
+        selected.put("data_rate", ammunition.getDataRateTag(ammunitionStack));
+        ammunitionData.put("selected", selected);
+        if (!ammunitionData.contains("using")) {
+            CompoundTag using = new CompoundTag();
+            CompoundTag usingMods = new CompoundTag();
+            usingMods.putInt("capacity", 0);
+            usingMods.putString("modsUUID", "");
+            using.put("mods", usingMods);
+            CompoundTag usingDataRate = Ammunition.getWhiteDataTag();
+            using.put("data_rate", usingDataRate);
+            ammunitionData.put("using", using);
+        }
+        gunStack.set(ModDataComponents.GUN_DATA, gunTag);
+    }
+
+    @Override
+    public void clearAmmo(ItemStack gunStack, Player player) {
+        AmmunitionHandler.clearGun(player, this, gunStack);
+    }
+
+    public CompoundTag checkAndGet(ItemStack stack) {
+        CompoundTag nbt = stack.getOrDefault(ModDataComponents.GUN_DATA, new CompoundTag());
+        if (nbt.isEmpty()) {
+            this.onCraftedBy(stack, null, null);
+            nbt = stack.getOrDefault(ModDataComponents.GUN_DATA, new CompoundTag());
+        }
+        return nbt;
+    }
+
+    public void setMagnificationsRateFor(String scopeId, ItemStack stack, float rate) {
+        CompoundTag magnifications = checkAndGetMagnificationsTag(stack);
+        magnifications.putFloat(scopeId, Mth.clamp(rate, 0, 1));
+        // Save the entire gun data back
+        CompoundTag nbt = checkAndGet(stack);
+        nbt.put("scope_magnifications", magnifications);
+        stack.set(ModDataComponents.GUN_DATA, nbt);
+    }
+
+    public float getMagnificationsRateFor(String scopeId, ItemStack stack) {
+        CompoundTag magnifications = checkAndGetMagnificationsTag(stack);
+        return magnifications.getFloat(scopeId);
+    }
+
+    public float getMagnificationsRateFor(Scope scope, ItemStack stack) {
+        String id = AttachmentsRegister.getStrKey(scope);
+        if (id == null) {
+            return 0;
+        }
+        return getMagnificationsRateFor(id, stack);
+    }
+
+    public CompoundTag checkAndGetMagnificationsTag(ItemStack stack) {
+        CompoundTag tag = checkAndGet(stack);
+        if (!tag.contains("scope_magnifications")) {
+            CompoundTag magnificationMap = new CompoundTag();
+            tag.put("scope_magnifications", magnificationMap);
+        }
+        return tag.getCompound("scope_magnifications");
+    }
+
+    @Override
+    public void onCraftedBy(ItemStack pStack, Level pLevel, Player pPlayer) {
+        super.onCraftedBy(pStack, pLevel, pPlayer);
+        CompoundTag nbt = pStack.getOrDefault(ModDataComponents.GUN_DATA, new CompoundTag());
+        if (!nbt.contains("date")) {
+            nbt.putLong("date", Commons.SERVER_START_TIME);
+        }
+        if (!nbt.contains("fire_mode_index")) {
+            nbt.putInt("fire_mode_index", 0);
+        }
+        if (!nbt.contains("ammo_left")) {
+            nbt.putInt("ammo_left", this.gunProperties.magSize);
+        }
+        if (!nbt.contains("properties")) {
+            nbt.put("properties", getInitialData());
+        }
+        if (!nbt.contains("attachments")) {
+            nbt.put("attachments", new ListTag());
+        }
+        if (!nbt.contains("attachments_modified_uuid")) {
+            nbt.putString("attachments_modified_uuid", UUID.randomUUID().toString());
+        }
+        if (!nbt.contains("effective_sight_uuid")) {
+            nbt.putString("effective_sight_uuid", "none");
+        }
+        if (!nbt.contains("scope_magnifications")) {
+            CompoundTag magnificationMap = new CompoundTag();
+            nbt.put("scope_magnifications", magnificationMap);
+        }
+        if (!nbt.contains("selected_ammunition_type_uuid"))  {
+            nbt.putString("selected_ammunition_type_uuid", "");
+        }
+        // Save the data back to the DataComponent
+        pStack.set(ModDataComponents.GUN_DATA, nbt);
+    }
+
+    @Override
+    public String getIdentity(ItemStack stack) {
+        CompoundTag nbt = checkAndGet(stack);
+        return nbt.contains("identity_temp") ? nbt.getString("identity_temp") : "";
+    }
+
+    public CompoundTag getInitialData() {
+        return gunProperties.getInitialData();
+    }
+
+    @Override
+    public GunType getGunType() {
+        return GunType.ASSAULT_RIFLE;
+    }
+
+    public boolean isAmmunitionBind(ItemStack stack) {
+        return checkAndGet(stack).contains("ammunition_data");
+    }
+
+    @Override
+    public void afterGunDataUpdate(Player player, ItemStack stack) {
+        CompoundTag scopeMagnifications = checkAndGetMagnificationsTag(stack);
+        Set<String> keyToRemove = new HashSet<>();
+        for (String key : scopeMagnifications.getAllKeys()) {
+            if (!(AttachmentsRegister.get(key) instanceof Scope)) {
+                keyToRemove.add(key);
+            }
+        }
+        for (String key : keyToRemove) {
+            scopeMagnifications.remove(key);
+        }
+    }
+
+    public void onEquipped(ItemStack itemStack, Player player) {
+        CompoundTag tag = checkAndGet(itemStack);
+        boolean modified = false;
+        if (!tag.contains("identity_temp")) {
+            tag.putString("identity_temp", UUID.randomUUID().toString());
+            modified = true;
+        }
+        if (modified) {
+            itemStack.set(ModDataComponents.GUN_DATA, tag);
+        }
+        if (!isAmmunitionBind(itemStack)) {
+            AmmunitionHandler.checkAndUpdateAmmunitionBind(player, itemStack, this);
+        }
+    }
+
+    protected String getFullAmmunitionUsedName(ItemStack itemStack) {
+        IAmmunition ammunition = gunProperties.caliber.ammunition;
+        StringBuilder baseName = new StringBuilder(Component.translatable(ammunition.get().getDescriptionId()).getString());
+        CompoundTag tag = getAmmunitionData(itemStack);
+        CompoundTag selected = tag.getCompound("selected");
+        CompoundTag modsTag = selected.getCompound("mods");
+        List<IAmmunitionMod> mods = ammunition.getMods(modsTag);
+        if (mods.size() > 0) {
+            baseName.append("(");
+            for (int i = 0; i < mods.size(); i++) {
+                IAmmunitionMod mod = mods.get(i);
+                baseName.append(Component.translatable(mod.getDescriptionId()).getString());
+                baseName.append(i == mods.size() - 1 ? ")" : ", ");
+            }
+        } else {
+            baseName.append(Component.translatable("tooltip.screen_info.unmodified").getString());
+        }
+        return baseName.toString();
+    }
+
+    @Override
+    public @NotNull CompoundTag getAmmunitionData(ItemStack itemStack) {
+        CompoundTag tag = checkAndGet(itemStack);
+        return tag.contains("ammunition_data") ? tag.getCompound("ammunition_data") : new CompoundTag();
+    }
+
+    @Override
+    @Nullable
+    public CompoundTag getUsingAmmunitionData(ItemStack itemStack) {
+        CompoundTag tag = checkAndGet(itemStack);
+        if (!tag.contains("ammunition_data")) {
+            return null;
+        }
+        CompoundTag ammunitionData = tag.getCompound("ammunition_data");
+        return ammunitionData.getCompound("using");
+    }
+
+    @Override
+    public CompoundTag getUsingAmmunitionDataRate(ItemStack itemStack, boolean createNew) {
+        CompoundTag usingAmmunitionData = getUsingAmmunitionData(itemStack);
+        return usingAmmunitionData == null ? (createNew ? Ammunition.getWhiteDataTag() : Ammunition.TEMPLATE_WHITE_TAG) : usingAmmunitionData.getCompound("data_rate");
+    }
+
+
+    @OnlyIn(Dist.CLIENT)
+    public @NotNull Object getRenderPropertiesInternal() {
+        return ArmPoseHandler.ARM_POSE_HANDLER;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || newStack == player.getOffhandItem()) {
+            return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+        }
+        if (slotChanged) {
+            ReloadingHandler.INSTANCE.cancelTask();
+            HandActionHandler.INSTANCE.breakTask();
+            SprintingHandler.INSTANCE.exitSprinting(RenderAndMathUtils.secondsToTicks(1.25f));
+            BulletShellRenderer.clear();
+            Clients.MAIN_HAND_STATUS.buttonDown.set(false);
+            Clients.MAIN_HAND_STATUS.ads = false;
+            Clients.setEquipDelay(3);
+            player.resetAttackStrengthTicker();
+            InertialRecoilHandler.flushRandomIndex();
+        }
+        return Clients.getEquipDelay() > 0;
+    }
+
+    public float getEquipSpeedModifier(ItemStack itemStack, IGun gun) {
+        float weight = gun.getWeight(itemStack);
+        return ((weight - 5f) / (35f)) * (-3.5f);
+    }
+
+    // In 1.21.1, getAttributeModifiers signature changed - method removed or signature different
+    // Commenting out for now - needs to be updated based on actual 1.21.1 Item API
+    // public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+    //     Multimap<Attribute, AttributeModifier> modifiers = ArrayListMultimap.create();
+    //     if (slot == EquipmentSlot.MAINHAND) {
+    //         modifiers.put(Attributes.ATTACK_SPEED.value(),
+    //             new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+    //                 getEquipSpeedModifier(stack, this), AttributeModifier.Operation.ADD_VALUE));
+    //     }
+    //     return modifiers;
+    // }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @NotNull Item.TooltipContext levelIn, List<Component> tooltip, TooltipFlag flagIn) {
+        try {
+            gunBaseInfo(stack, levelIn, tooltip, flagIn);
+            if (Clients.displayGunInfoDetails) {
+                gunDetailInfo(stack, levelIn, tooltip, flagIn);
+            } else {
+                String showDetail = Component.translatable("tooltip.gcaa.show_full_gun_info").getString();
+                showDetail = showDetail.replace("$key", KeyBinds.SHOW_FULL_GUN_INFO.getTranslatedKeyMessage().getString());
+                tooltip.add(FontUtils.helperTip(Component.literal(showDetail)));
+                tooltip.add(FontUtils.getExcellentWorse());
+            }
+        } catch (Exception ignored) {}
+    }
+
+    protected void gunBaseInfo(ItemStack stack, @NotNull Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        tooltip.add(FontUtils.dataTip("tooltip.gun_info.mag_size", getMagSize(stack), 100, 0));
+        tooltip.add(FontUtils.dataTip("tooltip.gun_info.rpm", gunProperties.getRPM(), 1200, 200));
+        tooltip.add(FontUtils.dataTip("tooltip.gun_info.weight", getWeight(stack), 5, 40));
+        CompoundTag ammunitionData = getUsingAmmunitionDataRate(stack, false);
+        tooltip.add(FontUtils.dataTip("tooltip.gun_info.penetration", gunProperties.caliber.penetration * ammunitionData.getFloat("penetration_rate"), 3f, 0.3f));
+        gunProperties.caliber.handleTooltip(stack, this, context.level(), tooltip, flagIn, false);
+        String ammo = Component.translatable("tooltip.gun_info.ammunition").getString();
+        String name = getFullAmmunitionUsedName(stack);
+        tooltip.add(Component.literal(ammo + name));
+    }
+
+    protected void gunDetailInfo(ItemStack stack, @NotNull Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        tooltip.add(FontUtils.dataTip("tooltip.gun_info.ads_speed", getAdsSpeed(stack), 5, 0));
+        gunProperties.caliber.handleTooltip(stack, this, context.level(), tooltip, flagIn, true);
+        tooltip.add(FontUtils.getExcellentWorse());
+    }
+
+    // In 1.21.1, TooltipPart API changed - method removed or signature different
+    // Commenting out for now - needs to be updated based on actual 1.21.1 ItemStack API
+    // @OnlyIn(Dist.CLIENT)
+    // public int getDefaultTooltipHideFlags(@NotNull ItemStack stack) {
+    //     return net.minecraft.world.item.ItemStack.TooltipPart.MODIFIERS.mask();
+    // }
+
+    protected static int getTicks(float seconds) {
+        return RenderAndMathUtils.secondsToTicks(seconds);
+    }
+
+    public int getCrosshairType() {
+        return 0;
+    }
+}
+

@@ -1,0 +1,101 @@
+package sheridan.gcaa.client.model.attachments;
+
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import sheridan.gcaa.GCAA;
+import sheridan.gcaa.client.model.modelPart.ModelPart;
+import sheridan.gcaa.lib.ArsenalLib;
+
+import java.util.Map;
+
+@OnlyIn(Dist.CLIENT)
+public class StatisticModel {
+
+    public static StatisticModel MAG_COLLECTION3 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mags3.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mag_collection3.geo.json"));
+
+    public static StatisticModel AR_LIGHT_HANDGUARD = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/ar_light_handguard.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/ar_light_handguard.geo.json"));
+
+    public static StatisticModel RAIL_CLAMP = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/others/rail_clamp.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/others/rail_clamp.geo.json"));
+
+    public static StatisticModel AR_STUFF1_LOW = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/gas_block_stock_tube_low.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/gas_block_stock_tube_low.geo.json"));
+
+    public static StatisticModel ATTACHMENTS_LOW_COLLECTION1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/attachments_low_collection1.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/attachments_low_collection1.geo.json"));
+
+    public static StatisticModel FLASHLIGHTS = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/flashlights.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/flashlights.geo.json"));
+
+    public static StatisticModel LASER_SIGHTS = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/laser_sights.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/laser_sights.geo.json"));
+
+    public static StatisticModel AK_STUFF1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ak_stuff/handguard1_rail_set1.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ak_stuff/handguard1_rail_set1.geo.json"));
+
+    public static StatisticModel AR_STUFF1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/gas_block_stock_tube.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/ar_stuff/gas_block_stock_tube.geo.json"));
+
+    public static StatisticModel MAG_COLLECTION1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mags1.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mag_collection1.geo.json"));
+
+    public static StatisticModel MAG_COLLECTION2 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mags2.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/mags/mag_collection2.geo.json"));
+
+    public static StatisticModel MUZZLE_COLLECTION1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/muzzles/muzzles1.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/muzzles/muzzle_collection1.geo.json"));
+
+    public static StatisticModel MUZZLE_COLLECTION2 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/muzzles/muzzles2.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/muzzles/muzzle_collection2.geo.json"));
+
+    public static StatisticModel SIGHTS1 = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/sights/sights1.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/sights/sights1.geo.json"));
+
+    public static StatisticModel RAIL_PANELS = new StatisticModel(
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/rail_panels.png"),
+            ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/grips/rail_panels.geo.json"));
+
+    public static final ResourceLocation HOLOGRAPHIC_CROSSHAIR = ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/sights/holographic.png");
+    public static final ResourceLocation RED_DOT_CROSSHAIR = ResourceLocation.fromNamespaceAndPath(GCAA.MODID, "model_assets/attachments/sights/red_dot.png");
+
+
+    private ModelPart root;
+    public final ResourceLocation texture;
+    public final ResourceLocation modelPath;
+
+    public StatisticModel(ResourceLocation texture, ResourceLocation modelPath) {
+        this.texture = texture;
+        this.modelPath = modelPath;
+    }
+
+    protected void init() {
+        root = ArsenalLib.loadBedRockGunModel(modelPath).bakeRoot().getChild("root");
+        for (Map.Entry<String, ModelPart> entry : root.getChildren().entrySet()) {
+            entry.getValue().meshing();
+        }
+    }
+
+    public ModelPart get(String name) {
+        if (root == null) {
+            init();
+        }
+        return root == null ? ModelPart.EMPTY : root.getChild(name);
+    }
+}
