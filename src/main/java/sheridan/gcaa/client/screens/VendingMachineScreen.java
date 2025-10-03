@@ -522,7 +522,6 @@ public class VendingMachineScreen extends AbstractContainerScreen<VendingMachine
 
     @Override
     protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
-        this.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         if (this.minecraft != null) {
             int startX = (this.width - this.getXSize()) / 2;
             int startY = (this.height - this.getYSize()) / 2;
@@ -532,7 +531,8 @@ public class VendingMachineScreen extends AbstractContainerScreen<VendingMachine
             }
         }
         if (needUpdate) {
-            this.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+            // Draw a semi-transparent overlay when waiting for update
+            pGuiGraphics.fill(0, 0, this.width, this.height, 0x80000000);
             RenderSystem.enableDepthTest();
             String text = Component.translatable("label.attachments_screen.wait_response").getString();
             Font font = Minecraft.getInstance().font;

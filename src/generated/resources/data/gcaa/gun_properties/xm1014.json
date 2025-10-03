@@ -1,0 +1,41 @@
+{
+  "ads_speed": 3.8,
+  "agility": 1.0,
+  "caliber": {
+    "baseDamage": 3.5,
+    "baseSpread": 1.85,
+    "effectiveRange": 3.75,
+    "minDamage": 2.0,
+    "name": "gcaa:12_gauge",
+    "penetration": 0.35,
+    "projectileNum": 8,
+    "speed": 6.25
+  },
+  "extensions": {
+    "gcaa:auto_shotgun_extension": {
+      "chamber_reload_length": 20,
+      "enter_delay": 8,
+      "exit_delay": 8,
+      "single_reload_length": 15,
+      "single_reload_num": 1,
+      "trigger_chamber_reload_delay": 14,
+      "trigger_reload_delay": 7
+    }
+  },
+  "fire_delay": 40,
+  "fire_sound_vol": 4.5,
+  "full_reload_length": 0,
+  "mag_size": 7,
+  "max_spread": 3.7,
+  "min_spread": 1.6,
+  "recoil_pitch": 4.2,
+  "recoil_pitch_control": 0.2,
+  "recoil_yaw": 1.5,
+  "recoil_yaw_control": 0.15,
+  "reload_length": 0,
+  "shoot_spread": 1.1,
+  "spread_recover": 0.2,
+  "sprinting_spread_factor": 1.6,
+  "walking_spread_factor": 1.3,
+  "weight": 14.0
+}

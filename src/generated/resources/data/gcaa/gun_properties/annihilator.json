@@ -1,0 +1,28 @@
+{
+  "ads_speed": 3.8,
+  "agility": 1.0,
+  "caliber": {
+    "baseDamage": 7.0,
+    "effectiveRange": 4.0,
+    "minDamage": 4.5,
+    "name": "gcaa:.45_acp",
+    "penetration": 0.55,
+    "speed": 6.0
+  },
+  "fire_delay": 15,
+  "fire_sound_vol": 3.4,
+  "full_reload_length": 66,
+  "mag_size": 20,
+  "max_spread": 3.0,
+  "min_spread": 0.8,
+  "recoil_pitch": 1.6,
+  "recoil_pitch_control": 0.15,
+  "recoil_yaw": 0.5,
+  "recoil_yaw_control": 0.12,
+  "reload_length": 51,
+  "shoot_spread": 0.8,
+  "spread_recover": 0.15,
+  "sprinting_spread_factor": 1.6,
+  "walking_spread_factor": 1.3,
+  "weight": 12.0
+}

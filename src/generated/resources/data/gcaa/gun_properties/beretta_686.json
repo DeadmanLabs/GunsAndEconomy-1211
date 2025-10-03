@@ -1,0 +1,30 @@
+{
+  "ads_speed": 3.9,
+  "agility": 1.0,
+  "caliber": {
+    "baseDamage": 4.0,
+    "baseSpread": 1.8,
+    "effectiveRange": 3.8,
+    "minDamage": 2.5,
+    "name": "gcaa:12_gauge",
+    "penetration": 0.35,
+    "projectileNum": 8,
+    "speed": 6.6
+  },
+  "fire_delay": 10,
+  "fire_sound_vol": 4.7,
+  "full_reload_length": 42,
+  "mag_size": 2,
+  "max_spread": 3.8,
+  "min_spread": 1.6,
+  "recoil_pitch": 4.5,
+  "recoil_pitch_control": 0.22,
+  "recoil_yaw": 2.0,
+  "recoil_yaw_control": 0.2,
+  "reload_length": 42,
+  "shoot_spread": 1.2,
+  "spread_recover": 0.25,
+  "sprinting_spread_factor": 1.6,
+  "walking_spread_factor": 1.3,
+  "weight": 14.0
+}

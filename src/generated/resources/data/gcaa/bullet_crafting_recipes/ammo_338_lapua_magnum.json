@@ -1,0 +1,9 @@
+{
+  "craftingTicks": 1200,
+  "ingredients": {
+    "gcaa:lead_nugget": 30,
+    "gcaa:thin_copper_plate": 35,
+    "minecraft:gunpowder": 30
+  },
+  "item": "gcaa:ammo_338_lapua_magnum"
+}

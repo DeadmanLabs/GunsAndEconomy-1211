@@ -1,0 +1,47 @@
+{
+  "ads_speed": 3.7,
+  "agility": 1.0,
+  "caliber": {
+    "baseDamage": 4.0,
+    "baseSpread": 1.75,
+    "effectiveRange": 4.0,
+    "minDamage": 2.0,
+    "name": "gcaa:12_gauge",
+    "penetration": 0.35,
+    "projectileNum": 8,
+    "speed": 6.0
+  },
+  "extensions": {
+    "gcaa:hand_action_extension": {
+      "ads_hand_action_animation_name": "pump_action",
+      "allow_ads": true,
+      "hand_action_animation_name": "pump_action",
+      "length": 13,
+      "start_delay": 4,
+      "throw_bullet_shell_delay": 3
+    },
+    "gcaa:single_reload_extension": {
+      "enter_delay": 8,
+      "exit_delay": 8,
+      "single_reload_length": 13,
+      "single_reload_num": 1,
+      "trigger_reload_delay": 7
+    }
+  },
+  "fire_delay": 240,
+  "fire_sound_vol": 4.0,
+  "full_reload_length": 0,
+  "mag_size": 6,
+  "max_spread": 3.5,
+  "min_spread": 1.3,
+  "recoil_pitch": 4.8,
+  "recoil_pitch_control": 0.15,
+  "recoil_yaw": 1.0,
+  "recoil_yaw_control": 0.1,
+  "reload_length": 0,
+  "shoot_spread": 1.2,
+  "spread_recover": 0.25,
+  "sprinting_spread_factor": 1.6,
+  "walking_spread_factor": 1.3,
+  "weight": 10.3
+}

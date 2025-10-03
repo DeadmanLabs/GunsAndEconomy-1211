@@ -1,0 +1,708 @@
+{
+  "ammunition": [
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo9x19mm",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo5_7x28mm",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo_357magnum",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo_45acp",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo7_62x39mm",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo5_56x45mm",
+      "price": 280
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo5_45x39mm",
+      "price": 240
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo7_62x51mm",
+      "price": 400
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo6_8x51mm",
+      "price": 350
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo_338_lapua_magnum",
+      "price": 600
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AmmunitionProduct",
+      "item": "gcaa:ammo12gauge",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GrenadeProduct",
+      "item": "gcaa:ammo_vog_25",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GrenadeProduct",
+      "item": "gcaa:ammo_m433",
+      "price": 240
+    }
+  ],
+  "attachment": [
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:pistol_suppressor",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:smg_suppressor",
+      "price": 80
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_suppressor",
+      "price": 110
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_suppressor",
+      "price": 130
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak12_suppressor",
+      "price": 120
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:shotgun_suppressor",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:sniper_suppressor",
+      "price": 210
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:osprey_suppressor",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:osprey_smg_suppressor",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_compensator",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_compensator",
+      "price": 220
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:smg_compensator",
+      "price": 160
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:dmr_compensator",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_improved_handguard",
+      "price": 270
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_rail_bracket",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:rail_clamp",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:canted_sight_set",
+      "price": 60
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:glock_mount",
+      "price": 110
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_improved_dust_cover",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:micro_red_dot",
+      "price": 75
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:red_dot",
+      "price": 90
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:holographic",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:okp7_a",
+      "price": 70
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:okp7_b",
+      "price": 120
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:kobra_sight",
+      "price": 80
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:pu_scope",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:acog",
+      "price": 220
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:elcan",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:scope_x10",
+      "price": 400
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:vertical_grip",
+      "price": 80
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:slant_grip",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GrenadeLauncherProduct",
+      "item": "gcaa:gp_25",
+      "price": 240
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GrenadeLauncherProduct",
+      "item": "gcaa:m203",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_gas_block",
+      "price": 30
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_stock_tube",
+      "price": 60
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_railed_handguard",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_light_handguard_short",
+      "price": 210
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_light_handguard",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:mp5_rail_handguard",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:m249_railed_handguard",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:saiga_12k_tactical_handguard",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:exp_mag_45_straight",
+      "price": 160
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:drum_45_straight",
+      "price": 280
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:exp_mag9x19",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:drum_9x19",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ar_extend_mag",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:mag_sure_fire_60",
+      "price": 450
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_extend_mag",
+      "price": 170
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:drum_ak",
+      "price": 400
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:exp_mag5_45x39",
+      "price": 160
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:drum_545x39",
+      "price": 380
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:exp_mag7_62x51",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:mcx_spear_exp_mag",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:saiga_12k_exp_mag",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:drum_762x51",
+      "price": 500
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:saiga_12k_drum",
+      "price": 320
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:glock_extend_mag",
+      "price": 70
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:vector_45_extend_mag",
+      "price": 130
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:sniper_extend_mag",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:shotgun_extend_bay",
+      "price": 70
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ctr_stock",
+      "price": 170
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ubr_stock",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:ak_tactical_stock",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:micro_laser_sight",
+      "price": 30
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:laser_sight",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:micro_flashlight",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:flashlight",
+      "price": 70
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:horizontal_laser_sight",
+      "price": 60
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:rail_panel",
+      "price": 15
+    },
+    {
+      "class": "sheridan.gcaa.service.product.AttachmentProduct",
+      "item": "gcaa:rail_panel_short",
+      "price": 10
+    }
+  ],
+  "exchange": [
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:gold_ingot",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:gold_block",
+      "price": 900
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:diamond",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:diamond_block",
+      "price": 1800
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_ingot",
+      "price": 30
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_block",
+      "price": 270
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:copper_ingot",
+      "price": 20
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:copper_block",
+      "price": 180
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:emerald",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:emerald_block",
+      "price": 2700
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:redstone",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "gcaa:annihilator",
+      "price": 500
+    }
+  ],
+  "gun": [
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:g19",
+      "price": 800
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:fn57",
+      "price": 1000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:python_357",
+      "price": 700
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:vector_45",
+      "price": 1300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:mp5",
+      "price": 1100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:akm",
+      "price": 2700
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:m4a1",
+      "price": 2900
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:ak12",
+      "price": 3000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:mk47",
+      "price": 3050
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:mcx_spear",
+      "price": 4200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:aug_a3",
+      "price": 2700
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:awp",
+      "price": 4000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:fn_ballista",
+      "price": 6000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:hk_g28",
+      "price": 4000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:sks",
+      "price": 1200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:m870",
+      "price": 2000
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:xm1014",
+      "price": 2400
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:saiga_12k",
+      "price": 3600
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:beretta_686",
+      "price": 1800
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:m249",
+      "price": 4400
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:rpk_16",
+      "price": 2700
+    },
+    {
+      "class": "sheridan.gcaa.service.product.GunProduct",
+      "item": "gcaa:m60e4",
+      "price": 5500
+    }
+  ],
+  "other": [
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_ingot",
+      "price": 30
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:copper_ingot",
+      "price": 20
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:redstone",
+      "price": 50
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:gold_ingot",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:diamond",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:emerald",
+      "price": 300
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "gcaa:vending_machine",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "gcaa:ammunition_processor",
+      "price": 160
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "gcaa:transaction_terminal",
+      "price": 260
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:cooked_beef",
+      "price": 20
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:bread",
+      "price": 10
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:carrot",
+      "price": 5
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:apple",
+      "price": 5
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_pickaxe",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_axe",
+      "price": 100
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_chestplate",
+      "price": 240
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_leggings",
+      "price": 210
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_boots",
+      "price": 120
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:iron_helmet",
+      "price": 150
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "minecraft:golden_apple",
+      "price": 805
+    },
+    {
+      "class": "sheridan.gcaa.service.product.CommonProduct",
+      "item": "gcaa:bullet_crafting_table",
+      "price": 200
+    },
+    {
+      "class": "sheridan.gcaa.service.product.NBTAttachedProduct",
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:strong_regeneration\"}",
+      "price": 100
+    }
+  ]
+}

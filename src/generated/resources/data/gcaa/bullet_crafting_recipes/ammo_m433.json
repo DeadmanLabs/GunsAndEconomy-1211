@@ -1,0 +1,9 @@
+{
+  "craftingTicks": 800,
+  "ingredients": {
+    "gcaa:thin_copper_plate": 25,
+    "minecraft:gunpowder": 15,
+    "minecraft:tnt": 7
+  },
+  "item": "gcaa:ammo_m433"
+}

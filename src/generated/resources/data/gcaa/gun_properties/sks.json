@@ -1,0 +1,38 @@
+{
+  "ads_speed": 3.9,
+  "agility": 1.0,
+  "caliber": {
+    "baseDamage": 10.0,
+    "effectiveRange": 7.0,
+    "minDamage": 6.0,
+    "name": "gcaa:7.62x39mm",
+    "penetration": 0.85,
+    "speed": 11.0
+  },
+  "extensions": {
+    "gcaa:sks_reload_extension": {
+      "enter_delay": 20,
+      "enter_delay_empty": 7,
+      "exit_delay": 20,
+      "single_reload_length": 18,
+      "single_reload_num": 1,
+      "trigger_reload_delay": 8
+    }
+  },
+  "fire_delay": 24,
+  "fire_sound_vol": 3.2,
+  "full_reload_length": 0,
+  "mag_size": 10,
+  "max_spread": 2.6,
+  "min_spread": 0.9,
+  "recoil_pitch": 3.3,
+  "recoil_pitch_control": 0.12,
+  "recoil_yaw": 1.0,
+  "recoil_yaw_control": 0.11,
+  "reload_length": 0,
+  "shoot_spread": 1.2,
+  "spread_recover": 0.17,
+  "sprinting_spread_factor": 1.6,
+  "walking_spread_factor": 1.3,
+  "weight": 16.0
+}

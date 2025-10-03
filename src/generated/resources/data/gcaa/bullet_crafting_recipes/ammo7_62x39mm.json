@@ -1,0 +1,10 @@
+{
+  "craftingTicks": 840,
+  "ingredients": {
+    "gcaa:lead_nugget": 18,
+    "gcaa:thin_copper_plate": 10,
+    "minecraft:gunpowder": 22,
+    "minecraft:iron_ingot": 3
+  },
+  "item": "gcaa:ammo7_62x39mm"
+}
