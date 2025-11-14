@@ -64,6 +64,8 @@ public record InstallAttachmentsPacket(String attachmentName, String slotName, S
                             menu.slots.get(packet.itemSlotIndex).set(ItemStack.EMPTY);
                         }
                         PacketDistributor.sendToPlayer(player, new UpdateGunModifyScreenGuiContextPacket(attachments));
+                        // Force sync the modified gun ItemStack to client
+                        player.inventoryMenu.broadcastChanges();
                     }
                 }
             }

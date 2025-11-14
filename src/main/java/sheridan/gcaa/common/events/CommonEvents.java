@@ -1,5 +1,7 @@
 package sheridan.gcaa.common.events;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -7,6 +9,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -87,7 +92,49 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void anvilChangeEvent(AnvilUpdateEvent event) {
-        if (event.getLeft().getItem() instanceof NoRepairNoEnchantmentItem || event.getRight().getItem() instanceof NoRepairNoEnchantmentItem) {
+        ItemStack left = event.getLeft();
+        ItemStack right = event.getRight();
+
+        // Handle enchanting guns/ammo/attachments with enchanted books
+        if (left.getItem() instanceof NoRepairNoEnchantmentItem && right.is(Items.ENCHANTED_BOOK)) {
+            // Get stored enchantments from the book
+            ItemEnchantments storedEnchantments = right.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+
+            if (!storedEnchantments.isEmpty()) {
+                // Create output item (copy of gun with enchantments added)
+                ItemStack output = left.copy();
+
+                // Get current enchantments on the gun (if any)
+                ItemEnchantments currentEnchantments = output.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+                ItemEnchantments.Mutable mutableEnchantments = new ItemEnchantments.Mutable(currentEnchantments);
+
+                // Add enchantments from the book
+                int addedCount = 0;
+                for (Holder<Enchantment> enchantmentHolder : storedEnchantments.keySet()) {
+                    int level = storedEnchantments.getLevel(enchantmentHolder);
+                    mutableEnchantments.set(enchantmentHolder, level);
+                    addedCount++;
+                }
+
+                // Apply the enchantments to the output
+                output.set(DataComponents.ENCHANTMENTS, mutableEnchantments.toImmutable());
+
+                // Set the output and cost
+                event.setOutput(output);
+                event.setCost(addedCount); // 1 level per enchantment added
+                event.setMaterialCost(1); // Consume 1 book
+
+                return; // Successfully handled
+            }
+        }
+
+        // Block all other anvil operations on guns/ammo/attachments
+        if (left.getItem() instanceof NoRepairNoEnchantmentItem) {
+            event.setCanceled(true);
+        }
+
+        // Block using guns/ammo/attachments as the material (right slot)
+        if (right.getItem() instanceof NoRepairNoEnchantmentItem && !left.isEmpty()) {
             event.setCanceled(true);
         }
     }

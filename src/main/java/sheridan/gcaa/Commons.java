@@ -11,6 +11,8 @@ import sheridan.gcaa.industrial.AmmunitionRecipe;
 import sheridan.gcaa.industrial.RecipeRegister;
 import sheridan.gcaa.items.ModItems;
 import sheridan.gcaa.items.ammunition.Ammunition;
+import sheridan.gcaa.items.ammunition.AmmunitionModRegister;
+import sheridan.gcaa.items.ammunition.ammunitionMods.AmmunitionMods;
 import sheridan.gcaa.items.attachments.Attachment;
 import sheridan.gcaa.items.attachments.replaceableParts.*;
 import sheridan.gcaa.items.gun.Gun;
@@ -31,6 +33,12 @@ public class Commons {
     public static long SERVER_START_TIME = System.currentTimeMillis();
 
     public static void onCommonSetUp(final FMLCommonSetupEvent event) {
+        // Force load AmmunitionMods class to ensure static field initialization and mod registration
+        Class<?> ammunitionModsClass = AmmunitionMods.class;
+        if (GCAA.ALLOW_DEBUG) {
+            GCAA.LOGGER.info("Ammunition mods initialization complete. Total registered: {}",
+                AmmunitionModRegister.getAll().size());
+        }
 
         AttachmentsRegister.registerAttachmentSlot(ModItems.AKM.get(), AttachmentSlot.root()
                 .addChild(new AttachmentSlot(MUZZLE, Set.of("gcaa:ak_suppressor", "gcaa:ak_compensator")))

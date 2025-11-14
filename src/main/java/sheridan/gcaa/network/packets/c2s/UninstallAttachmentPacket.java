@@ -47,6 +47,8 @@ public record UninstallAttachmentPacket(String uuid, String replaceableGunPartUu
                         }
                         ListTag attachments = gun.getAttachmentsListTag(heldItem);
                         PacketDistributor.sendToPlayer(player, new UpdateGunModifyScreenGuiContextPacket(attachments));
+                        // Force sync the modified gun ItemStack to client
+                        player.inventoryMenu.broadcastChanges();
                     }
                 }
             });

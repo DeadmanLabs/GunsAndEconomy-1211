@@ -1,10 +1,7 @@
 package sheridan.gcaa.items;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 public class NoRepairNoEnchantmentItem extends BaseItem{
     public NoRepairNoEnchantmentItem(Properties properties) {
@@ -15,32 +12,26 @@ public class NoRepairNoEnchantmentItem extends BaseItem{
         super();
     }
 
-    // TODO: Check if these methods still exist in 1.21.1 Item API
-    // @Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        return false;
-    }
-
-    // @Override
-    public Map<Enchantment, Integer> getAllEnchantments(ItemStack stack) {
-        return EMPTY_ENCHANTMENT_MAP;
-    }
-
+    // Allow enchantments - enchantability value of 1 (standard for tools/armor)
+    // This allows KubeJS and other mods to control which enchantments can be applied
     @Override
     public int getEnchantmentValue() {
-        return 0;
+        return 1;
     }
 
+    // Allow enchanting books to be applied via anvil
     @Override
     public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return false;
+        return true;
     }
 
+    // Allow items to be enchanted in enchanting table
     @Override
     public boolean isEnchantable(@NotNull ItemStack itemStack) {
-        return false;
+        return true;
     }
 
+    // Keep repair blocking - guns shouldn't be repairable with materials
     @Override
     public boolean isRepairable(@NotNull ItemStack stack) {
         return false;

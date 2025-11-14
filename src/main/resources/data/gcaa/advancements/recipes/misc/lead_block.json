@@ -1,0 +1,33 @@
+{
+  "parent": "gcaa:recipes/root",
+  "rewards": {
+    "recipes": [
+      "gcaa:lead_ingot_to_lead_block",
+      "gcaa:lead_ingot_from_lead_block"
+    ]
+  },
+  "criteria": {
+    "has_lead": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": ["gcaa:lead_ingot"]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "gcaa:lead_ingot_to_lead_block"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_lead",
+      "has_the_recipe"
+    ]
+  ]
+}

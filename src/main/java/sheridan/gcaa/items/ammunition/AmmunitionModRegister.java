@@ -1,6 +1,7 @@
 package sheridan.gcaa.items.ammunition;
 
 import net.minecraft.resources.ResourceLocation;
+import sheridan.gcaa.GCAA;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,9 @@ public class AmmunitionModRegister {
         ammunitionModMap.put(ammunitionMod.getId().toString(), new ModEntry(count, ammunitionMod));
         idMapping.put(count, ammunitionMod.getId().toString());
         all.add(ammunitionMod);
+        if (GCAA.ALLOW_DEBUG) {
+            GCAA.LOGGER.info("Registered ammunition mod: {} (index: {})", ammunitionMod.getId(), count);
+        }
         count++;
     }
 

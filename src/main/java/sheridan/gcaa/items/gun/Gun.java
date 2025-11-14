@@ -3,11 +3,16 @@ package sheridan.gcaa.items.gun;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,6 +23,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import sheridan.gcaa.items.ModDataComponents;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -168,6 +175,8 @@ public class Gun extends NoRepairNoEnchantmentItem implements IGun {
         }
         Clients.MAIN_HAND_STATUS.spread += spread;
         boolean notUseAmmo = player.isCreative() && !CommonConfig.creativeModeUseAmmo.get();
+        // Infinity doesn't prevent magazine from emptying - player still needs to reload
+        // Infinity only prevents consuming ammo items from inventory during reload
         if (!notUseAmmo) {
             setAmmoLeft(stack, getAmmoLeft(stack) > 0 ? getAmmoLeft(stack) - 1 : 0);
         }
@@ -221,6 +230,8 @@ public class Gun extends NoRepairNoEnchantmentItem implements IGun {
         if (ammoLeft > 0) {
             Caliber caliber = gunProperties.caliber;
             boolean notUseAmmo = player.isCreative() && !CommonConfig.creativeModeUseAmmo.get();
+            // Infinity doesn't prevent magazine from emptying - player still needs to reload
+            // Infinity only prevents consuming ammo items from inventory during reload
             if (!notUseAmmo) {
                 setAmmoLeft(stack, ammoLeft - 1);
             }
@@ -796,6 +807,36 @@ public class Gun extends NoRepairNoEnchantmentItem implements IGun {
 
     protected static int getTicks(float seconds) {
         return RenderAndMathUtils.secondsToTicks(seconds);
+    }
+
+    /**
+     * Checks if the gun has the Infinity enchantment.
+     * With Infinity, the gun doesn't consume ammo from player inventory,
+     * but the player still needs to reload when the magazine runs out.
+     */
+    public static boolean hasInfinityEnchantment(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (enchantments.isEmpty()) {
+            return false;
+        }
+
+        // Check for Infinity enchantment
+        ResourceKey<Enchantment> infinityKey = ResourceKey.create(
+            Registries.ENCHANTMENT,
+            ResourceLocation.withDefaultNamespace("infinity")
+        );
+
+        for (Holder<Enchantment> enchantmentHolder : enchantments.keySet()) {
+            if (enchantmentHolder.is(infinityKey)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public int getCrosshairType() {

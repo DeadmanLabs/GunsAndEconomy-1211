@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 240,
+  "experience": 0.3,
+  "ingredient": {
+    "item": "gcaa:ore_asphalt"
+  },
+  "result": {
+    "item": "gcaa:plastic"
+  }
+}

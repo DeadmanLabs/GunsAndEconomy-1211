@@ -82,18 +82,20 @@ public class GCAA {
             modEventBus.addListener(this::onClientSetup);
         }
         modEventBus.addListener(this::commonSetup);
-        boolean notRunData = isNotRunData();
-        if (notRunData) {
-            AddonHandler.INSTANCE.readAddonPack(FMLLoader.getDist());
-            AddonHandler.INSTANCE.handleRegister(FMLLoader.getDist());
-        }
+        // Removed custom AddonHandler for standard recipe loading
+        // boolean notRunData = isNotRunData();
+        // if (notRunData) {
+        //     AddonHandler.INSTANCE.readAddonPack(FMLLoader.getDist());
+        //     AddonHandler.INSTANCE.handleRegister(FMLLoader.getDist());
+        // }
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
-        if (notRunData) {
-            for (DeferredRegister<Item> items : ModItems.ADDON_ITEMS.values()) {
-                items.register(modEventBus);
-            }
-        }
+        // Register addon items if needed (commented out custom addon system)
+        // if (notRunData) {
+        //     for (DeferredRegister<Item> items : ModItems.ADDON_ITEMS.values()) {
+        //         items.register(modEventBus);
+        //     }
+        // }
         ModBlocks.BLOCKS.register(modEventBus);
         ModTabs.MOD_TABS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
@@ -108,9 +110,7 @@ public class GCAA {
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);
         modEventBus.addListener(this::gatherDataEvent);
         modEventBus.addListener(PacketRegistry::register);
-        if (notRunData) {
-            modEventBus.addListener(this::registerAddonFinder);
-        }
+        // Test without any custom datapack registration - NeoForge should auto-load
     }
 
     private void gatherDataEvent(GatherDataEvent event) {
@@ -157,16 +157,7 @@ public class GCAA {
     //     }
     // }
 
-    private void registerAddonFinder(AddPackFindersEvent event) {
-        if (isNotRunData()) {
-            event.addRepositorySource(AddonHandler.INSTANCE.getRepositorySource());
-        }
-    }
-
-    public static boolean isNotRunData() {
-        return false;
-                //ServerLifecycleHooks.getCurrentServer() != null || !ModList.get().isLoaded("forge");
-    }
+    // Removed complex datapack registration - testing if NeoForge auto-loads
 
     @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class RegistryEvents {

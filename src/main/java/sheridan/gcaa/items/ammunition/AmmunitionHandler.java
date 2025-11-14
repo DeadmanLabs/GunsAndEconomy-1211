@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.NotImplementedException;
+import sheridan.gcaa.items.gun.Gun;
 import sheridan.gcaa.items.gun.IGun;
 
 import java.util.*;
@@ -172,6 +173,16 @@ public class AmmunitionHandler {
             clearGun(player, gun, gunStack);
         }
         exceptedReloadNum = Math.min(exceptedReloadNum, gun.getMagSize(gunStack) - gun.getAmmoLeft(gunStack));
+
+        // If gun has Infinity enchantment, reload without consuming ammo
+        if (Gun.hasInfinityEnchantment(gunStack)) {
+            gun.setAmmoLeft(gunStack, gun.getAmmoLeft(gunStack) + exceptedReloadNum);
+            CompoundTag ammunitionData = gun.getAmmunitionData(gunStack);
+            CompoundTag selected = ammunitionData.getCompound("selected");
+            ammunitionData.put("using", selected.copy());
+            return;
+        }
+
         int findCount = 0;
         int exceptedReloadLeft = exceptedReloadNum;
         boolean isAmmunitionBind = gun.getGun().isAmmunitionBind(gunStack);
@@ -238,6 +249,11 @@ public class AmmunitionHandler {
     }
 
     public static boolean hasAmmunition(IGun gun, ItemStack gunStack, IAmmunition ammunition, Player player) {
+        // If gun has Infinity enchantment, always return true (no ammo required in inventory)
+        if (Gun.hasInfinityEnchantment(gunStack)) {
+            return true;
+        }
+
         NonNullList<ItemStack> items = player.getInventory().items;
         boolean isAmmunitionBind = gun.getGun().isAmmunitionBind(gunStack);
         for (ItemStack stack : items) {

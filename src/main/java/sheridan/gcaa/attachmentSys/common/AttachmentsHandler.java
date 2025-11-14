@@ -169,6 +169,8 @@ public class AttachmentsHandler {
         CompoundTag mark = getMark(attachment, slotName, modelSlotName, parentUuid, direction);
         attachments.add(mark);
         gun.setAttachmentsListTag(stack, attachments);
+        gun.setPropertiesTag(stack, properties);
+        gun.updateDate(stack);
     }
 
     public ItemStack serverUninstallAttachment(Player player, ItemStack stack, IGun gun, String uuid, String replaceableGunPartUuid) {

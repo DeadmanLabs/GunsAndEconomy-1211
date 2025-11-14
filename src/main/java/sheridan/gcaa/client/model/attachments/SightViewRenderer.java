@@ -16,6 +16,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import sheridan.gcaa.GCAA;
 import sheridan.gcaa.client.model.modelPart.ModelPart;
@@ -137,10 +138,20 @@ public class SightViewRenderer {
 
     private static void renderCrosshair(PoseStack poseStack, VertexConsumer vertexConsumer) {
         Matrix4f matrix4f = poseStack.last().pose();
-        vertexConsumer.addVertex(matrix4f, -0.5F, -0.5F, 0.0F).setColor(1.0F, 1.0F, 1.0F, 1).setUv(0, 0).setLight(15728880);
-        vertexConsumer.addVertex(matrix4f, 0.5F, -0.5F, 0.0F).setColor(1.0F, 1.0F, 1.0F, 1).setUv(1, 0).setLight(15728880);
-        vertexConsumer.addVertex(matrix4f, 0.5F, 0.5F, 0.0F).setColor(1.0F, 1.0F, 1.0F, 1).setUv(1, 1).setLight(15728880);
-        vertexConsumer.addVertex(matrix4f, -0.5F, 0.5F, 0.0F).setColor(1.0F, 1.0F, 1.0F, 1).setUv(0, 1).setLight(15728880);
+        // Transform vertices manually and use the full addVertex signature for 1.21.1
+        Vector3f pos1 = matrix4f.transformPosition(-0.5F, -0.5F, 0.0F, new Vector3f());
+        Vector3f pos2 = matrix4f.transformPosition(0.5F, -0.5F, 0.0F, new Vector3f());
+        Vector3f pos3 = matrix4f.transformPosition(0.5F, 0.5F, 0.0F, new Vector3f());
+        Vector3f pos4 = matrix4f.transformPosition(-0.5F, 0.5F, 0.0F, new Vector3f());
+
+        int color = 0xFFFFFFFF; // White color (ARGB format)
+        int overlay = 655360; // OverlayTexture.NO_OVERLAY
+        int light = 15728880; // Full bright
+
+        vertexConsumer.addVertex(pos1.x, pos1.y, pos1.z, color, 0, 0, overlay, light, 0, 1, 0);
+        vertexConsumer.addVertex(pos2.x, pos2.y, pos2.z, color, 1, 0, overlay, light, 0, 1, 0);
+        vertexConsumer.addVertex(pos3.x, pos3.y, pos3.z, color, 1, 1, overlay, light, 0, 1, 0);
+        vertexConsumer.addVertex(pos4.x, pos4.y, pos4.z, color, 0, 1, overlay, light, 0, 1, 0);
     }
 }
 
